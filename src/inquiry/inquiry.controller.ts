@@ -29,8 +29,8 @@ export class InquiryController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Put('/updateInquiry/inquiryId')
-  @ApiParam({ example: 1, name: 'inquiry_id', required: true })
+  @Put('/updateInquiry/:inquiryId')
+  @ApiParam({ example: 1, name: 'inquiryId', required: true })
   async updateInquiry(@Param('inquiryId') inquiryId: number) {
     return this.inquiryService.updateInquiry(inquiryId);
   }
