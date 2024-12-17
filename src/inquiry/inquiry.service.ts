@@ -19,7 +19,6 @@ export class InquiryService {
 
   async createInquiry(inquiryDto: InquiryDto): Promise<any> {
     const inquiry = await this.inquiryModel.create(inquiryDto);
-
     const { email, first_name, last_name, phone_number, message } = inquiryDto;
 
     await emailSend({
@@ -85,8 +84,8 @@ export class InquiryService {
   async updateInquiry(inquiryId: number): Promise<any> {
     const inquiry = await this.inquiryModel.findByPk(inquiryId);
 
-    Logger.log(`Inquiry ${Messages.NOT_FOUND}`);
     if (!inquiry) {
+      Logger.log(`Inquiry ${Messages.NOT_FOUND}`);
       return HandleResponse(
         HttpStatus.NOT_FOUND,
         ResponseData.ERROR,
@@ -94,8 +93,8 @@ export class InquiryService {
       );
     }
 
-    Logger.log(Messages.INQUIRY_ALREADY_RESOLVE);
     if (inquiry.status === Status.RESOLVE) {
+      Logger.log(Messages.INQUIRY_ALREADY_RESOLVE);
       return HandleResponse(
         HttpStatus.BAD_REQUEST,
         ResponseData.ERROR,
