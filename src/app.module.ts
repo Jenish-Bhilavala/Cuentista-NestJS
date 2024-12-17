@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InquiryModule } from './inquiry/inquiry.module';
@@ -16,6 +18,11 @@ const config: any = {
 };
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public', 'uploads'),
+      serveRoot: '/uploads',
+    }),
+
     SequelizeModule.forRoot({
       ...config,
       host: process.env.DB_HOST,
