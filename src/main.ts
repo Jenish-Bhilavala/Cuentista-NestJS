@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import { format, transports } from 'winston';
 import 'winston-daily-rotate-file';
@@ -35,6 +35,7 @@ async function bootstrap() {
   });
 
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe());
 
   // Swagger setup
   const config = new DocumentBuilder()
