@@ -4,11 +4,10 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Get,
   Put,
   Param,
 } from '@nestjs/common';
-import { InquiryDto } from './dto/inquiry.dto';
+import { InquiryDto, listOfInquiryDto } from './dto/inquiry.dto';
 import { InquiryService } from './inquiry.service';
 
 @Controller('inquiry')
@@ -22,9 +21,9 @@ export class InquiryController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('/listOfInquiry')
-  async listOfInquiry() {
-    return this.inquiryService.listOfInquiry();
+  @Post('/listOfInquiry')
+  async listOfInquiry(@Body() dto: listOfInquiryDto) {
+    return this.inquiryService.listOfInquiry(dto);
   }
 
   @HttpCode(HttpStatus.OK)

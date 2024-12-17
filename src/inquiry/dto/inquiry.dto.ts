@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class InquiryDto {
   @ApiProperty({
@@ -50,4 +57,52 @@ export class InquiryDto {
   })
   @IsNotEmpty()
   message: string;
+}
+
+export class listOfInquiryDto {
+  @ApiProperty({
+    example: 'john',
+    type: 'string',
+    format: 'string',
+    required: false,
+  })
+  @IsOptional()
+  search: string;
+
+  @ApiProperty({
+    example: 5,
+    type: 'number',
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  pageSize: number;
+
+  @ApiProperty({
+    example: 1,
+    type: 'number',
+    format: 'number',
+    required: false,
+  })
+  @IsOptional()
+  page: number;
+
+  @ApiProperty({
+    example: 'desc',
+    type: 'string',
+    required: false,
+    enum: ['asc', 'desc'],
+  })
+  @IsString()
+  @IsOptional()
+  sortValue: string;
+
+  @ApiProperty({
+    example: 'id',
+    type: 'string',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  sortKey: string;
 }

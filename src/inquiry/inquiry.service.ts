@@ -1,12 +1,14 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { InquiryModel } from '../model/inquiry.model';
-import { InquiryDto } from './dto/inquiry.dto';
+import { InquiryDto, listOfInquiryDto } from './dto/inquiry.dto';
 import { HandleResponse } from '../libs/services/handleResponse';
 import { ResponseData } from 'src/libs/utils/constants/response';
 import { Messages } from 'src/libs/utils/constants/message';
 import { emailSend } from 'src/libs/helpers/mail';
 import { Status } from 'src/libs/utils/constants/enum';
+import { pagination, sorting } from '../libs/utils/constants/commonFunctions';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class InquiryService {
@@ -37,11 +39,33 @@ export class InquiryService {
     );
   }
 
-  async listOfInquiry(): Promise<any> {
-    const inquiries = await this.inquiryModel.findAll();
+  async listOfInquiry(dto: listOfInquiryDto): Promise<any> {
+    const { search, pageSize, page, sortValue, sortKey } = dto;
+    const sortQuery = sorting(sortKey, sortValue);
 
-    Logger.log(`Inquiries ${Messages.NOT_FOUND}`);
-    if (inquiries.length === 0) {
+    const whereCondition: any = {
+      attributes: ['id', 'first_name', 'last_name'],
+      order: sortQuery,
+      where: {},
+    };
+
+    if (search) {
+      whereCondition.where[Op.or] = [
+        { first_name: { [Op.like]: `%${search}%` } },
+        { last_name: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    const paginationResult = await pagination(
+      this.inquiryModel,
+      page,
+      pageSize,
+      whereCondition,
+      'inquiries'
+    );
+
+    if (paginationResult.inquiries && paginationResult.inquiries.length <= 0) {
+      Logger.error(`Inquiries ${Messages.NOT_FOUND}`);
       return HandleResponse(
         HttpStatus.NOT_FOUND,
         ResponseData.ERROR,
@@ -54,7 +78,7 @@ export class InquiryService {
       HttpStatus.OK,
       ResponseData.SUCCESS,
       undefined,
-      inquiries
+      paginationResult
     );
   }
 
