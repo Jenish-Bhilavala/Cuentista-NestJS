@@ -8,7 +8,7 @@ import {
   Matches,
 } from 'class-validator';
 
-export class InquiryDto {
+export class AddInquiryDto {
   @ApiProperty({
     example: 'John',
     type: 'string',

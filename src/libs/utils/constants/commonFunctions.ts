@@ -31,7 +31,7 @@ export async function pagination(
   };
 }
 
-export function sorting(sortKey: string = 'id', sortValue: string = 'asc') {
+export function sorting(sortKey: string, sortValue: string) {
   const sortQuery: [string, string][] = [];
 
   if (sortKey && sortValue) {

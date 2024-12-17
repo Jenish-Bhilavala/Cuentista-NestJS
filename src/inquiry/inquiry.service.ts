@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { InquiryModel } from '../model/inquiry.model';
-import { InquiryDto, listOfInquiryDto } from './dto/inquiry.dto';
+import { AddInquiryDto, listOfInquiryDto } from './dto/inquiry.dto';
 import { HandleResponse } from '../libs/services/handleResponse';
 import { ResponseData } from 'src/libs/utils/constants/response';
 import { Messages } from 'src/libs/utils/constants/message';
@@ -17,9 +17,9 @@ export class InquiryService {
     private readonly inquiryModel: typeof InquiryModel
   ) {}
 
-  async createInquiry(inquiryDto: InquiryDto): Promise<any> {
-    const inquiry = await this.inquiryModel.create(inquiryDto);
+  async createInquiry(inquiryDto: AddInquiryDto) {
     const { email, first_name, last_name, phone_number, message } = inquiryDto;
+    const inquiry = await this.inquiryModel.create(inquiryDto);
 
     await emailSend({
       email,
@@ -38,12 +38,20 @@ export class InquiryService {
     );
   }
 
-  async listOfInquiry(dto: listOfInquiryDto): Promise<any> {
+  async listOfInquiry(dto: listOfInquiryDto) {
     const { search, pageSize, page, sortValue, sortKey } = dto;
     const sortQuery = sorting(sortKey, sortValue);
 
     const whereCondition: any = {
-      attributes: ['id', 'first_name', 'last_name'],
+      attributes: [
+        'id',
+        'first_name',
+        'last_name',
+        'email',
+        'phone_number',
+        'message',
+        'status',
+      ],
       order: sortQuery,
       where: {},
     };
@@ -52,6 +60,9 @@ export class InquiryService {
       whereCondition.where[Op.or] = [
         { first_name: { [Op.like]: `%${search}%` } },
         { last_name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { phone_number: { [Op.like]: `%${search}%` } },
+        { status: { [Op.like]: `%${search}%` } },
       ];
     }
 
@@ -81,7 +92,7 @@ export class InquiryService {
     );
   }
 
-  async updateInquiry(inquiryId: number): Promise<any> {
+  async updateInquiry(inquiryId: number) {
     const inquiry = await this.inquiryModel.findByPk(inquiryId);
 
     if (!inquiry) {
@@ -102,15 +113,16 @@ export class InquiryService {
       );
     }
 
-    inquiry.status = Status.RESOLVE;
-    await inquiry.save();
+    await this.inquiryModel.update(
+      { status: Status.RESOLVE },
+      { where: { id: inquiry } }
+    );
 
     Logger.log(`Inquiry ${Messages.UPDATE_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
-      `Inquiry ${Messages.UPDATE_SUCCESS}`,
-      { id: inquiry.id, status: inquiry.status }
+      `Inquiry ${Messages.UPDATE_SUCCESS}`
     );
   }
 }
