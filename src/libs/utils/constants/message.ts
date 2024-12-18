@@ -1,10 +1,12 @@
 export enum Messages {
   //Error Messages.
   NOT_FOUND = 'not found.',
+  FILES_NOT_SELECTED = 'No files selected.',
   ALREADY_EXIST = 'already exist.',
   UPDATE_FAILED = 'Your password is not update.',
   STATUS_NOT_UPDATED = 'Your status is not updated.',
   NOT_UPDATED = 'not updated.',
+  MAX_FILE = 'Total number of files should be 4 or less.',
   INQUIRY_ALREADY_RESOLVE = 'The inquiry has already been resolved.',
 
   // Success Messages.

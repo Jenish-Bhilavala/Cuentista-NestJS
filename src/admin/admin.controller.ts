@@ -5,15 +5,20 @@ import {
   HttpStatus,
   Post,
   Put,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { FileUploadDto } from './dto/file-upload.dto';
+import upload from '../libs/helpers/multer';
 import {
   ChangePasswordDto,
   ForgotPasswordDto,
   LoginDto,
   VerifyEmailDto,
 } from './dto/create-admin.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -42,5 +47,13 @@ export class AdminController {
   @Put('/changePassword')
   async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
     return await this.adminService.changePassword(changePasswordDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('fileUploads')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FilesInterceptor('files', 4, upload))
+  fileUpload(@Body() dto: FileUploadDto, @UploadedFiles() files: any) {
+    return this.adminService.fileUpload(files);
   }
 }
