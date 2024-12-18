@@ -20,5 +20,6 @@ export enum Messages {
   LOGIN_SUCCESS = 'You are login successfully.',
   EMAIL_INCORRECT = 'Your email is not registered.',
   OTP_EXPIRED = 'Your OTP is expired.',
+  PASSWORD_MUST_BE_SAME = 'New password and confirm password must be same.',
   OTP_NOT_MATCH = 'Please enter correct otp.',
 }

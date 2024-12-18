@@ -5,13 +5,17 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InquiryModule } from './inquiry/inquiry.module';
+import { AdminModule } from './admin/admin.module';
 import * as dotenv from 'dotenv';
+import { InquiryModel } from './model/inquiry.model';
+import { AdminModel } from './model/admin.model';
+import { OTPModel } from './model/otp.model';
 dotenv.config();
 
 const config: any = {
   dialect: 'mysql',
   autoLoadModels: true,
-  models: [],
+  models: [InquiryModel, AdminModel, OTPModel],
   define: {
     timestamps: false,
   },
@@ -33,6 +37,7 @@ const config: any = {
       synchronize: true,
     }),
     InquiryModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
