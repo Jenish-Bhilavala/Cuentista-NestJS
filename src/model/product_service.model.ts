@@ -1,6 +1,7 @@
 import { MaxLength } from 'class-validator';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   ForeignKey,
   HasMany,
@@ -15,18 +16,21 @@ export class ProductServiceModel extends Model<ProductServiceModel> {
   @AllowNull(true)
   @MaxLength(255)
   @Column
-  product_service_details?: string;
+  service_type?: string;
 
   @AllowNull(false)
   @MaxLength(255)
   @Column
-  service_detail: string;
+  service_detail?: string;
 
   @ForeignKey(() => ProductModel)
   @AllowNull(false)
   @Column
   product_id: number;
 
+  @BelongsTo(() => ProductModel)
+  product: ProductModel;
+
   @HasMany(() => ProductServiceDetailsModel)
-  service_details: ProductServiceDetailsModel[];
+  serviceDetails: ProductServiceDetailsModel[];
 }

@@ -1,6 +1,7 @@
 import { MaxLength } from 'class-validator';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   ForeignKey,
   Model,
@@ -19,4 +20,7 @@ export class ProductMethodologyModel extends Model<ProductMethodologyModel> {
   @AllowNull(false)
   @Column
   product_id: number;
+
+  @BelongsTo(() => ProductModel)
+  product: ProductModel;
 }

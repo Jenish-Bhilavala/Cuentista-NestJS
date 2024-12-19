@@ -32,11 +32,7 @@ export class ProductModel extends Model<ProductModel> {
   @Column
   contact: string;
 
-  @AllowNull(false)
-  @Column({ type: DataTypes.JSONB })
-  images: string[];
-
-  @HasMany(() => ProductBenefitModel, { foreignKey: 'benefit_id' })
+  @HasMany(() => ProductBenefitModel)
   benefit: ProductBenefitModel[];
 
   @HasMany(() => ProductServiceModel)
@@ -46,7 +42,7 @@ export class ProductModel extends Model<ProductModel> {
   methodologies: ProductMethodologyModel[];
 
   @HasMany(() => ProductExpertiseModel)
-  expiries: ProductExpertiseModel[];
+  expertise: ProductExpertiseModel[];
 
   @HasMany(() => ImageModel)
   imagesDetails: ImageModel[];

@@ -5,27 +5,28 @@ import {
   AllowNull,
   Column,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { ProductModel } from './product.model';
 
-@Table({ tableName: 'image' })
+@Table({ tableName: 'images' })
 export class ImageModel extends Model<ImageModel> {
-  @AllowNull(false)
+  @AllowNull(true)
   @MaxLength(255)
   @Column
   image1: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @MaxLength(255)
   @Column
   image2: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @MaxLength(255)
   @Column
   image3: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @MaxLength(255)
   @Column
   image4: string;
@@ -34,4 +35,12 @@ export class ImageModel extends Model<ImageModel> {
   @AllowNull(false)
   @Column
   product_id: number;
+
+  @ForeignKey(() => ProductModel)
+  @AllowNull(false)
+  @Column
+  service_id: number;
+
+  @BelongsTo(() => ProductModel)
+  product: ProductModel;
 }

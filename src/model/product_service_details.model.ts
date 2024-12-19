@@ -1,8 +1,10 @@
 import { MaxLength } from 'class-validator';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -19,4 +21,7 @@ export class ProductServiceDetailsModel extends Model<ProductServiceDetailsModel
   @AllowNull(false)
   @Column
   product_service_id: number;
+
+  @BelongsTo(() => ProductServiceModel)
+  product_service: ProductServiceModel;
 }
