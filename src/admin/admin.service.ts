@@ -210,17 +210,7 @@ export class AdminService {
 
   async fileUpload(files: Express.Multer.File[]) {
     try {
-      if (!files || files.length === 0) {
-        Logger.log(Messages.FILES_NOT_SELECTED);
-        return HandleResponse(
-          HttpStatus.BAD_REQUEST,
-          ResponseData.ERROR,
-          Messages.FILES_NOT_SELECTED
-        );
-      }
-
-      if (files.length > 4) {
-        Logger.log(Messages.MAX_FILE);
+      if (!files || files.length !== 4) {
         return HandleResponse(
           HttpStatus.BAD_REQUEST,
           ResponseData.ERROR,
@@ -242,22 +232,13 @@ export class AdminService {
         result.push(fileUrl);
       }
 
-      if (result.length > 0) {
-        Logger.log(`Files ${Messages.ADD_SUCCESS}`);
-        return HandleResponse(
-          HttpStatus.CREATED,
-          ResponseData.SUCCESS,
-          `Files ${Messages.ADD_SUCCESS}`,
-          result
-        );
-      } else {
-        Logger.log(`Files ${Messages.NOT_FOUND}`);
-        return HandleResponse(
-          HttpStatus.NOT_FOUND,
-          ResponseData.ERROR,
-          `Files ${Messages.NOT_FOUND}`
-        );
-      }
+      Logger.log(`Files ${Messages.ADD_SUCCESS}`);
+      return HandleResponse(
+        HttpStatus.CREATED,
+        ResponseData.SUCCESS,
+        `Files ${Messages.ADD_SUCCESS}`,
+        result
+      );
     } catch (error) {
       Logger.error(error.message || error);
       return HandleResponse(

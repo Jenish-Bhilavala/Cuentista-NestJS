@@ -6,7 +6,7 @@ export enum Messages {
   UPDATE_FAILED = 'Your password is not update.',
   STATUS_NOT_UPDATED = 'Your status is not updated.',
   NOT_UPDATED = 'not updated.',
-  MAX_FILE = 'Total number of files should be 4 or less.',
+  MAX_FILE = 'Exactly 4 files are required.',
   INQUIRY_ALREADY_RESOLVE = 'The inquiry has already been resolved.',
 
   // Success Messages.
