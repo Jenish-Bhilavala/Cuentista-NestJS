@@ -1,19 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  MaxLength,
-  IsString,
-  IsOptional,
-  IsArray,
-  IsNumber,
-} from 'class-validator';
+import { MaxLength, IsString, IsOptional, IsArray } from 'class-validator';
 
-export class CreateProductDto {
+export class UpdateProductDTO {
   @ApiProperty({
     description: 'The name of the product',
     maxLength: 50,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(50)
   product_name: string;
 
@@ -21,7 +14,7 @@ export class CreateProductDto {
     description: 'The description of the product',
     maxLength: 255,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(255)
   product_description: string;
 
@@ -29,7 +22,7 @@ export class CreateProductDto {
     description: 'Contact details for the product',
     maxLength: 255,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(255)
   contact: string;
 
@@ -44,7 +37,7 @@ export class CreateProductDto {
       image4: 'image_url_4',
     },
   })
-  @IsNotEmpty()
+  @IsOptional()
   images: {
     image1: string;
     image2: string;
@@ -104,52 +97,4 @@ export class CreateProductDto {
     area: string;
     description: string;
   }[];
-}
-
-export class ListOfProductDto {
-  @ApiProperty({
-    example: 'Refrigerator Freezer',
-    type: 'string',
-    format: 'string',
-    required: false,
-  })
-  @IsOptional()
-  search: string;
-
-  @ApiProperty({
-    example: 5,
-    type: 'number',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  pageSize: number;
-
-  @ApiProperty({
-    example: 1,
-    type: 'number',
-    format: 'number',
-    required: false,
-  })
-  @IsOptional()
-  page: number;
-
-  @ApiProperty({
-    example: 'desc',
-    type: 'string',
-    required: false,
-    enum: ['asc', 'desc'],
-  })
-  @IsString()
-  @IsOptional()
-  sortValue: string;
-
-  @ApiProperty({
-    example: 'id',
-    type: 'string',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  sortKey: string;
 }

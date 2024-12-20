@@ -59,7 +59,7 @@ export class AddInquiryDto {
   message: string;
 }
 
-export class listOfInquiryDto {
+export class ListOfInquiryDto {
   @ApiProperty({
     example: 'john',
     type: 'string',
