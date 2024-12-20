@@ -2,8 +2,8 @@ export class CreateAdminDto {}
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   Matches,
   MaxLength,
@@ -62,7 +62,7 @@ export class ForgotPasswordDto {
     format: 'number',
     required: true,
   })
-  @IsInt()
+  @IsNumber()
   @IsNotEmpty()
   otp: number;
 

@@ -82,7 +82,6 @@ export class AdminService {
     await OTPModel.create({
       email: email,
       otp: otp,
-      createdAt: new Date(),
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
@@ -111,7 +110,7 @@ export class AdminService {
       );
     }
 
-    const findOtp = await this.otpModel.findOne({ where: { email, otp } });
+    const findOtp = await this.otpModel.findOne({ where: { otp } });
 
     if (!findOtp) {
       Logger.error(Messages.OTP_NOT_MATCH);
@@ -125,8 +124,8 @@ export class AdminService {
     const currentTime = new Date();
 
     if (findOtp.expiresAt < currentTime) {
-      Logger.error(Messages.OTP_EXPIRED);
       await this.otpModel.destroy({ where: { otp } });
+      Logger.error(Messages.OTP_EXPIRED);
       return HandleResponse(
         HttpStatus.BAD_REQUEST,
         ResponseData.ERROR,
@@ -153,7 +152,7 @@ export class AdminService {
 
     Logger.log(`Password ${Messages.UPDATE_SUCCESS}`);
     return HandleResponse(
-      HttpStatus.OK,
+      HttpStatus.CREATED,
       ResponseData.SUCCESS,
       `Password ${Messages.UPDATE_SUCCESS}`
     );
