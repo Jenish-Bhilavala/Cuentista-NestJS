@@ -10,7 +10,6 @@ import * as dotenv from 'dotenv';
 import { InquiryModel } from './model/inquiry.model';
 import { AdminModel } from './model/admin.model';
 import { OTPModel } from './model/otp.model';
-import { ProductModule } from './product/product.module';
 dotenv.config();
 
 const config: any = {
@@ -39,7 +38,6 @@ const config: any = {
     }),
     InquiryModule,
     AdminModule,
-    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
