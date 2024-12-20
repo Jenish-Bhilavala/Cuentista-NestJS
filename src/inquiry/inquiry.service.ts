@@ -74,15 +74,6 @@ export class InquiryService {
       'inquiries'
     );
 
-    if (paginationResult.inquiries && paginationResult.inquiries.length <= 0) {
-      Logger.error(`Inquiries ${Messages.NOT_FOUND}`);
-      return HandleResponse(
-        HttpStatus.NOT_FOUND,
-        ResponseData.ERROR,
-        `Inquiries ${Messages.NOT_FOUND}`
-      );
-    }
-
     Logger.log(`Inquiries ${Messages.RETRIEVED_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
