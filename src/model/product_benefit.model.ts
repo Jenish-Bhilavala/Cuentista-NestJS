@@ -11,10 +11,10 @@ import { ProductModel } from './product.model';
 
 @Table({ tableName: 'product_benefit' })
 export class ProductBenefitModel extends Model<ProductBenefitModel> {
-  @AllowNull(false)
+  @AllowNull(true)
   @MaxLength(255)
   @Column
-  benefit: string;
+  benefit?: string;
 
   @ForeignKey(() => ProductModel)
   @AllowNull(false)

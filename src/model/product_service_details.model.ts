@@ -4,7 +4,6 @@ import {
   BelongsTo,
   Column,
   ForeignKey,
-  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';

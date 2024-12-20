@@ -11,33 +11,33 @@ import { ProductModel } from './product.model';
 
 @Table({ tableName: 'images' })
 export class ImageModel extends Model<ImageModel> {
-  @AllowNull(true)
+  @AllowNull(false)
   @MaxLength(255)
   @Column
   image1: string;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @MaxLength(255)
   @Column
   image2: string;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @MaxLength(255)
   @Column
   image3: string;
 
-  @AllowNull(true)
+  @AllowNull(false)
   @MaxLength(255)
   @Column
   image4: string;
 
   @ForeignKey(() => ProductModel)
-  @AllowNull(false)
+  @AllowNull(true)
   @Column
   product_id: number;
 
   @ForeignKey(() => ProductModel)
-  @AllowNull(false)
+  @AllowNull(true)
   @Column
   service_id: number;
 

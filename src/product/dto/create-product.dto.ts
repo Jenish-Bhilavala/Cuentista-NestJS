@@ -43,12 +43,12 @@ export class CreateProductDTO {
       image4: 'image_url_4',
     },
   })
-  @IsOptional()
-  images?: {
-    image1?: string;
-    image2?: string;
-    image3?: string;
-    image4?: string;
+  @IsNotEmpty()
+  images: {
+    image1: string;
+    image2: string;
+    image3: string;
+    image4: string;
   };
 
   @ApiProperty({
@@ -57,7 +57,7 @@ export class CreateProductDTO {
   })
   @IsArray()
   @IsString({ each: true })
-  @IsNotEmpty()
+  @IsOptional()
   benefits: string[];
 
   @ApiProperty({
@@ -67,12 +67,12 @@ export class CreateProductDTO {
       {
         service_type: 'Service Type 1',
         service_details: 'Detailed description of the service',
-        service_details_list: ['Subservice 1', 'Subservice 2'],
+        service_details_list: ['sub description 1', 'sub description 2'],
       },
     ],
   })
   @IsArray()
-  @IsNotEmpty()
+  @IsOptional()
   services: {
     service_type: string;
     service_details: string;
@@ -85,7 +85,7 @@ export class CreateProductDTO {
   })
   @IsArray()
   @IsString({ each: true })
-  @IsNotEmpty()
+  @IsOptional()
   methodology: string[];
 
   @ApiProperty({
@@ -99,7 +99,7 @@ export class CreateProductDTO {
   })
   @IsArray()
   @IsOptional()
-  expiries: {
+  expertise: {
     area: string;
     description: string;
   }[];
