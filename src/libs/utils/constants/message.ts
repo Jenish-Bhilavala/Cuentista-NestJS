@@ -5,6 +5,7 @@ export enum Messages {
   UPDATE_FAILED = 'Your password is not update.',
   STATUS_NOT_UPDATED = 'Your status is not updated.',
   NOT_UPDATED = 'not updated.',
+  INQUIRY_ALREADY_RESOLVE = 'The inquiry has already been resolved.',
 
   // Success Messages.
   ADD_SUCCESS = 'added successfully.',
