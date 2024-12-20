@@ -25,8 +25,8 @@ export class AdminService {
     private readonly jwtService: JwtService
   ) {}
 
-  async adminLogin(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+  async adminLogin(dto: LoginDto) {
+    const { email, password } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -63,8 +63,8 @@ export class AdminService {
     );
   }
 
-  async verifyEmail(verifyEmailDto: VerifyEmailDto) {
-    const { email } = verifyEmailDto;
+  async verifyEmail(dto: VerifyEmailDto) {
+    const { email } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -97,8 +97,8 @@ export class AdminService {
     );
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const { email, otp, newPassword, confirmPassword } = forgotPasswordDto;
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const { email, otp, newPassword, confirmPassword } = dto;
 
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
@@ -159,10 +159,8 @@ export class AdminService {
     );
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto) {
-    const { email, currentPassword, newPassword, confirmPassword } =
-      changePasswordDto;
-
+  async changePassword(dto: ChangePasswordDto) {
+    const { email, currentPassword, newPassword, confirmPassword } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -227,8 +225,7 @@ export class AdminService {
       const result: string[] = [];
 
       for (const file of files) {
-        const fileName = file.filename;
-        const fileUrl = `/uploads/${fileName}`;
+        const fileUrl = file.filename;
         result.push(fileUrl);
       }
 
