@@ -219,7 +219,9 @@ export class ProductService {
   }
 
   async getListOfProduct() {
-    const findProduct = await this.productModel.findAll();
+    const findProduct = await this.productModel.findAll({
+      attributes: ['id', 'product_name'],
+    });
 
     if (findProduct.length === 0) {
       Logger.error(`Product ${Messages.NOT_FOUND}`);
@@ -230,16 +232,11 @@ export class ProductService {
       );
     }
 
-    const productList = findProduct.map((product) => ({
-      productId: product.id,
-      productName: product.product_name,
-    }));
-
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
       undefined,
-      productList
+      findProduct
     );
   }
 
