@@ -8,6 +8,7 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { ProductModel } from './product.model';
+import { ServiceModel } from './service.model';
 
 @Table({ tableName: 'images' })
 export class ImageModel extends Model<ImageModel> {
@@ -36,7 +37,7 @@ export class ImageModel extends Model<ImageModel> {
   @Column
   product_id: number;
 
-  @ForeignKey(() => ProductModel)
+  @ForeignKey(() => ServiceModel)
   @AllowNull(true)
   @Column
   service_id: number;

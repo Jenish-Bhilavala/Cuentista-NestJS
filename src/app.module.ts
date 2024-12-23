@@ -18,6 +18,10 @@ import { ProductServiceDetailsModel } from './model/product_service_details.mode
 import { ProductBenefitModel } from './model/product_benefit.model';
 import { ProductExpertiseModel } from './model/product_expertise.model';
 import { ProductMethodologyModel } from './model/product_methodology.model';
+import { ServiceModule } from './service/service.module';
+import { ServiceModel } from './model/service.model';
+import { SubServiceModel } from './model/sub_service.model';
+import { ServiceDetailsModel } from './model/service_details.model';
 dotenv.config();
 
 const config: any = {
@@ -34,6 +38,9 @@ const config: any = {
     ProductBenefitModel,
     ProductExpertiseModel,
     ProductMethodologyModel,
+    ServiceModel,
+    SubServiceModel,
+    ServiceDetailsModel,
   ],
   define: {
     timestamps: false,
@@ -58,6 +65,7 @@ const config: any = {
     InquiryModule,
     AdminModule,
     ProductModule,
+    ServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

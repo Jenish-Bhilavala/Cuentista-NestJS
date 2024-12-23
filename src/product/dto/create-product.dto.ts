@@ -36,7 +36,7 @@ export class CreateProductDto {
   @ApiProperty({
     description: 'Image details for the product',
     type: Object,
-    required: false,
+    required: true,
     example: {
       image1: 'image_url_1',
       image2: 'image_url_2',
