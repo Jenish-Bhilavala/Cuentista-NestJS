@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ServiceModel } from '../model/service.model';
 import { SubServiceModel } from '../model/sub_service.model';
@@ -78,6 +78,7 @@ export class ServiceService {
         await this.serviceDetailsModel.bulkCreate(serviceDetailRecords);
       }
 
+      Logger.log(`Service ${Messages.ADD_SUCCESS}`);
       return HandleResponse(
         HttpStatus.CREATED,
         ResponseData.SUCCESS,
@@ -85,11 +86,90 @@ export class ServiceService {
         { id: newService.id }
       );
     } catch (error) {
+      Logger.error(error.message || error);
       return HandleResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         ResponseData.ERROR,
         error.message || error
       );
     }
+  }
+
+  async viewService(serviceId: number) {
+    const findService = await this.serviceModel.findByPk(serviceId, {
+      include: [
+        {
+          model: this.subServiceModel,
+          as: 'subServices',
+          attributes: { exclude: ['service_id'] },
+        },
+        {
+          model: this.serviceDetailsModel,
+          as: 'serviceDetails',
+          attributes: { exclude: ['service_id'] },
+        },
+      ],
+    });
+
+    if (!findService) {
+      Logger.error(`Service ${Messages.NOT_FOUND}`);
+      return HandleResponse(
+        HttpStatus.BAD_REQUEST,
+        ResponseData.ERROR,
+        `Service ${Messages.NOT_FOUND}`
+      );
+    }
+
+    return HandleResponse(
+      HttpStatus.OK,
+      ResponseData.SUCCESS,
+      undefined,
+      findService
+    );
+  }
+
+  async deleteService(service_id: number) {
+    const findService = await this.serviceModel.findByPk(service_id);
+
+    if (!findService) {
+      Logger.error(`Service ${Messages.NOT_FOUND}`);
+      return HandleResponse(
+        HttpStatus.NOT_FOUND,
+        ResponseData.ERROR,
+        `Service${Messages.NOT_FOUND}`
+      );
+    }
+
+    await findService.destroy();
+
+    Logger.log(`Service ${Messages.DELETED_SUCCESS}`);
+    return HandleResponse(
+      HttpStatus.OK,
+      ResponseData.SUCCESS,
+      `Service ${Messages.DELETED_SUCCESS}`
+    );
+  }
+
+  async getListOfService() {
+    const findService = await this.serviceModel.findAll({
+      attributes: ['id', 'service_name'],
+    });
+
+    if (findService.length === 0) {
+      Logger.error(`Service ${Messages.NOT_FOUND}`);
+      return HandleResponse(
+        HttpStatus.NOT_FOUND,
+        ResponseData.ERROR,
+        `Service ${Messages.NOT_FOUND}`
+      );
+    }
+
+    Logger.log(`Service ${Messages.RETRIEVED_SUCCESS}`);
+    return HandleResponse(
+      HttpStatus.OK,
+      ResponseData.SUCCESS,
+      undefined,
+      findService
+    );
   }
 }
