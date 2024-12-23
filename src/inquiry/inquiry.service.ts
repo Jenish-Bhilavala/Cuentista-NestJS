@@ -17,9 +17,9 @@ export class InquiryService {
     private readonly inquiryModel: typeof InquiryModel
   ) {}
 
-  async createInquiry(inquiryDto: AddInquiryDto) {
-    const { email, first_name, last_name, phone_number, message } = inquiryDto;
-    const inquiry = await this.inquiryModel.create(inquiryDto);
+  async createInquiry(dto: AddInquiryDto) {
+    const { email, first_name, last_name, phone_number, message } = dto;
+    const inquiry = await this.inquiryModel.create(dto);
 
     await emailSend({
       email,
@@ -74,15 +74,6 @@ export class InquiryService {
       'inquiries'
     );
 
-    if (paginationResult.inquiries && paginationResult.inquiries.length <= 0) {
-      Logger.error(`Inquiries ${Messages.NOT_FOUND}`);
-      return HandleResponse(
-        HttpStatus.NOT_FOUND,
-        ResponseData.ERROR,
-        `Inquiries ${Messages.NOT_FOUND}`
-      );
-    }
-
     Logger.log(`Inquiries ${Messages.RETRIEVED_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
@@ -120,7 +111,7 @@ export class InquiryService {
 
     Logger.log(`Inquiry ${Messages.UPDATE_SUCCESS}`);
     return HandleResponse(
-      HttpStatus.OK,
+      HttpStatus.ACCEPTED,
       ResponseData.SUCCESS,
       `Inquiry ${Messages.UPDATE_SUCCESS}`
     );
