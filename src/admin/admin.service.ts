@@ -97,8 +97,7 @@ export class AdminService {
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {
-    const { email, otp, newPassword, confirmPassword } = dto;
-
+    const { email, otp, newPassword } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -133,15 +132,6 @@ export class AdminService {
       );
     }
 
-    if (newPassword !== confirmPassword) {
-      Logger.error(Messages.PASSWORD_MUST_BE_SAME);
-      return HandleResponse(
-        HttpStatus.BAD_REQUEST,
-        ResponseData.ERROR,
-        Messages.PASSWORD_MUST_BE_SAME
-      );
-    }
-
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.adminModel.update(
       { password: hashedPassword },
@@ -159,7 +149,7 @@ export class AdminService {
   }
 
   async changePassword(dto: ChangePasswordDto) {
-    const { email, currentPassword, newPassword, confirmPassword } = dto;
+    const { email, currentPassword, newPassword } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -182,15 +172,6 @@ export class AdminService {
         HttpStatus.BAD_REQUEST,
         ResponseData.ERROR,
         Messages.CREDENTIAL_NOT_MATCH
-      );
-    }
-
-    if (newPassword !== confirmPassword) {
-      Logger.error(Messages.PASSWORD_MUST_BE_SAME);
-      return HandleResponse(
-        HttpStatus.BAD_REQUEST,
-        ResponseData.ERROR,
-        Messages.PASSWORD_MUST_BE_SAME
       );
     }
 

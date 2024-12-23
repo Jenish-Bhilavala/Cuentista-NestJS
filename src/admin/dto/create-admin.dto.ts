@@ -9,6 +9,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Match } from 'src/libs/utils/constants/match.decorator';
 
 export class LoginDto {
   @ApiProperty({
@@ -87,6 +88,7 @@ export class ForgotPasswordDto {
     required: true,
   })
   @IsString()
+  @Match('newPassword', { message: 'Your confirm Password is not match.' })
   @IsNotEmpty()
   confirmPassword: string;
 }
@@ -133,6 +135,7 @@ export class ChangePasswordDto {
     required: true,
   })
   @IsString()
+  @Match('newPassword', { message: 'Your confirm Password is not match.' })
   @IsNotEmpty()
   confirmPassword: string;
 }
