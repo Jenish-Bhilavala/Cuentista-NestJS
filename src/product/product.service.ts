@@ -37,7 +37,6 @@ export class ProductService {
     const {
       product_name,
       product_description,
-      contact,
       benefits,
       services,
       methodology,
@@ -51,16 +50,15 @@ export class ProductService {
         {
           product_name,
           product_description,
-          contact,
         },
         { transaction }
       );
 
-      const ProductsId = createProduct.id;
+      const productsId = createProduct.id;
 
       if (images) {
         const imageData = {
-          product_id: ProductsId,
+          product_id: productsId,
           image1: images.image1,
           image2: images.image2,
           image3: images.image3,
@@ -72,7 +70,7 @@ export class ProductService {
       if (benefits) {
         const createBenefits = benefits.map((benefit) => ({
           benefit,
-          product_id: ProductsId,
+          product_id: productsId,
         }));
         await this.productBenefitModel.bulkCreate(createBenefits, {
           transaction,
@@ -85,7 +83,7 @@ export class ProductService {
             {
               service_type: service.service_type,
               service_detail: service.service_details,
-              product_id: ProductsId,
+              product_id: productsId,
             },
             { transaction }
           );
@@ -94,6 +92,7 @@ export class ProductService {
             const createServiceDetails = service.service_details_list.map(
               (detail) => ({
                 product_service_id: createServices.id,
+                product_id: productsId,
                 service_details: detail,
               })
             );
@@ -106,7 +105,7 @@ export class ProductService {
 
       if (methodology) {
         const createMethodology = methodology.map((step) => ({
-          product_id: ProductsId,
+          product_id: productsId,
           product_step: step,
         }));
         await this.productMethodologyModel.bulkCreate(createMethodology, {
@@ -116,7 +115,7 @@ export class ProductService {
 
       if (expertise) {
         const createExpertise = expertise.map((expertise) => ({
-          product_id: ProductsId,
+          product_id: productsId,
           product_area: expertise.area,
           product_description: expertise.description,
         }));
@@ -132,7 +131,7 @@ export class ProductService {
         HttpStatus.CREATED,
         ResponseData.SUCCESS,
         `Product ${Messages.ADD_SUCCESS}`,
-        { id: ProductsId }
+        { id: productsId }
       );
     } catch (error) {
       await transaction.rollback();
@@ -260,7 +259,6 @@ export class ProductService {
     const {
       product_name,
       product_description,
-      contact,
       benefits,
       services,
       methodology,
@@ -283,7 +281,6 @@ export class ProductService {
     await findProduct.update({
       product_name,
       product_description,
-      contact,
     });
 
     if (images) {
@@ -322,6 +319,10 @@ export class ProductService {
     }
 
     if (services) {
+      await this.serviceDetailModel.destroy({
+        where: { product_id: productsId },
+      });
+
       await this.productServiceModel.destroy({
         where: { product_id: productsId },
       });
@@ -333,10 +334,11 @@ export class ProductService {
           product_id: productsId,
         });
 
-        if (service.service_details_list?.length) {
+        if (service.service_details_list) {
           const createServiceDetails = service.service_details_list.map(
             (detail) => ({
               product_service_id: updateService.id,
+              product_id: productsId,
               service_details: detail,
             })
           );
@@ -393,6 +395,28 @@ export class ProductService {
         `Product ${Messages.NOT_FOUND}`
       );
     }
+
+    const productsId = findProduct.id;
+
+    await this.serviceDetailModel.destroy({
+      where: { product_id: productsId },
+    });
+
+    await this.productServiceModel.destroy({
+      where: { product_id: productsId },
+    });
+
+    await this.productMethodologyModel.destroy({
+      where: { product_id: productsId },
+    });
+
+    await this.productExpertiseModel.destroy({
+      where: { product_id: productsId },
+    });
+
+    await this.productBenefitModel.destroy({
+      where: { product_id: productsId },
+    });
 
     await findProduct.destroy();
 

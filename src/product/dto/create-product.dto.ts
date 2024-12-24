@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
-  MaxLength,
   IsString,
   IsOptional,
   IsArray,
@@ -25,14 +24,6 @@ export class CreateProductDto {
   })
   @IsNotEmpty()
   product_description: string;
-
-  @ApiProperty({
-    example: 'microsoft365@gmail.com',
-    type: 'string',
-    required: true,
-  })
-  @IsNotEmpty()
-  contact: string;
 
   @ApiProperty({
     example: {

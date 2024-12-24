@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MaxLength, IsString, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class UpdateProductDTO {
   @ApiProperty({
@@ -17,14 +17,6 @@ export class UpdateProductDTO {
   })
   @IsOptional()
   product_description: string;
-
-  @ApiProperty({
-    example: 'microsoft365@gmail.com',
-    type: 'string',
-    required: true,
-  })
-  @IsOptional()
-  contact: string;
 
   @ApiProperty({
     example: {
