@@ -7,7 +7,7 @@ import {
   Put,
   Param,
 } from '@nestjs/common';
-import { AddInquiryDto, listOfInquiryDto } from './dto/inquiry.dto';
+import { AddInquiryDto, ListOfInquiryDto } from './dto/inquiry.dto';
 import { InquiryService } from './inquiry.service';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 
@@ -24,7 +24,7 @@ export class InquiryController {
 
   @HttpCode(HttpStatus.OK)
   @Post('listOfInquiry')
-  async listOfInquiry(@Body() dto: listOfInquiryDto) {
+  async listOfInquiry(@Body() dto: ListOfInquiryDto) {
     return this.inquiryService.listOfInquiry(dto);
   }
 

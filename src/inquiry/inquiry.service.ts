@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { InquiryModel } from '../model/inquiry.model';
-import { AddInquiryDto, listOfInquiryDto } from './dto/inquiry.dto';
+import { AddInquiryDto, ListOfInquiryDto } from './dto/inquiry.dto';
 import { HandleResponse } from '../libs/services/handleResponse';
 import { ResponseData } from 'src/libs/utils/constants/response';
 import { Messages } from 'src/libs/utils/constants/message';
@@ -38,7 +38,7 @@ export class InquiryService {
     );
   }
 
-  async listOfInquiry(dto: listOfInquiryDto) {
+  async listOfInquiry(dto: ListOfInquiryDto) {
     const { search, pageSize, page, sortValue, sortKey } = dto;
     const sortQuery = sorting(sortKey, sortValue);
 

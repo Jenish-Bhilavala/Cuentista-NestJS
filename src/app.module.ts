@@ -6,16 +6,35 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InquiryModule } from './inquiry/inquiry.module';
 import { AdminModule } from './admin/admin.module';
+import { ProductModule } from './product/product.module';
 import * as dotenv from 'dotenv';
 import { InquiryModel } from './model/inquiry.model';
 import { AdminModel } from './model/admin.model';
 import { OTPModel } from './model/otp.model';
+import { ImageModel } from './model/images.model';
+import { ProductModel } from './model/product.model';
+import { ProductServiceModel } from './model/product_service.model';
+import { ProductServiceDetailsModel } from './model/product_service_details.model';
+import { ProductBenefitModel } from './model/product_benefit.model';
+import { ProductExpertiseModel } from './model/product_expertise.model';
+import { ProductMethodologyModel } from './model/product_methodology.model';
 dotenv.config();
 
 const config: any = {
   dialect: 'mysql',
   autoLoadModels: true,
-  models: [InquiryModel, AdminModel, OTPModel],
+  models: [
+    InquiryModel,
+    AdminModel,
+    OTPModel,
+    ImageModel,
+    ProductModel,
+    ProductServiceModel,
+    ProductServiceDetailsModel,
+    ProductBenefitModel,
+    ProductExpertiseModel,
+    ProductMethodologyModel,
+  ],
   define: {
     timestamps: false,
   },
@@ -38,6 +57,7 @@ const config: any = {
     }),
     InquiryModule,
     AdminModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
