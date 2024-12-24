@@ -3,6 +3,7 @@ import * as nodemailer from 'nodemailer';
 import * as dotenv from 'dotenv';
 import { HandleResponse } from '../services/handleResponse';
 import { ResponseData } from '../utils/constants/response';
+import { randomInt } from 'crypto';
 dotenv.config();
 
 const transporter: any = nodemailer.createTransport({
@@ -15,8 +16,12 @@ const transporter: any = nodemailer.createTransport({
   },
 });
 
+export const sendOtp = () => {
+  return randomInt(100000, 999999);
+};
+
 export const emailSend = async (obj: any) => {
-  const { email, firstName, lastName, phone, messageContent } = obj;
+  const { email, firstName, lastName, phone, messageContent, otp } = obj;
   let mailDetail: any = null;
 
   if (email && messageContent) {
@@ -38,6 +43,18 @@ export const emailSend = async (obj: any) => {
     };
   }
 
+  if (email && otp) {
+    mailDetail = {
+      to: email,
+      subject: 'Your OTP',
+      html: `
+      <p>Your OTP is <strong>${otp}</strong></p>
+    <p>Please do not share it with anyone.</p>
+    <p>OTP will expire in 5 minutes.</p>
+      `,
+    };
+  }
+
   try {
     const info = await transporter.sendMail(mailDetail);
     Logger.log('Email sent: ' + info.response);
@@ -52,4 +69,4 @@ export const emailSend = async (obj: any) => {
   }
 };
 
-module.exports = { emailSend };
+module.exports = { emailSend, sendOtp };

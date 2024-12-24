@@ -1,10 +1,12 @@
 export enum Messages {
   //Error Messages.
   NOT_FOUND = 'not found.',
+  FILES_NOT_SELECTED = 'No files selected.',
   ALREADY_EXIST = 'already exist.',
   UPDATE_FAILED = 'Your password is not update.',
   STATUS_NOT_UPDATED = 'Your status is not updated.',
   NOT_UPDATED = 'not updated.',
+  MAX_FILE = 'Exactly 4 files are required.',
   INQUIRY_ALREADY_RESOLVE = 'The inquiry has already been resolved.',
 
   // Success Messages.
@@ -20,5 +22,6 @@ export enum Messages {
   LOGIN_SUCCESS = 'You are login successfully.',
   EMAIL_INCORRECT = 'Your email is not registered.',
   OTP_EXPIRED = 'Your OTP is expired.',
+  PASSWORD_MUST_BE_SAME = 'New password and confirm password must be same.',
   OTP_NOT_MATCH = 'Please enter correct otp.',
 }
