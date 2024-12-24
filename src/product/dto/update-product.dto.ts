@@ -1,41 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MaxLength, IsString, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class UpdateProductDTO {
   @ApiProperty({
-    description: 'The name of the product',
-    maxLength: 50,
+    example: 'Microsoft Code',
+    type: 'string',
+    required: false,
   })
   @IsOptional()
-  @MaxLength(50)
   product_name: string;
 
   @ApiProperty({
-    description: 'The description of the product',
-    maxLength: 255,
+    example: 'microsoft365@gmail.com',
+    type: 'string',
+    required: true,
   })
   @IsOptional()
-  @MaxLength(255)
   product_description: string;
 
   @ApiProperty({
-    description: 'Contact details for the product',
-    maxLength: 255,
-  })
-  @IsOptional()
-  @MaxLength(255)
-  contact: string;
-
-  @ApiProperty({
-    description: 'Image details for the product',
-    type: Object,
-    required: false,
     example: {
       image1: 'image_url_1',
       image2: 'image_url_2',
       image3: 'image_url_3',
       image4: 'image_url_4',
     },
+    type: Object,
+    required: false,
   })
   @IsOptional()
   images: {
@@ -46,8 +37,9 @@ export class UpdateProductDTO {
   };
 
   @ApiProperty({
-    description: 'List of benefits related to the product',
+    example: ['Fast and readable code', 'Code suggestion and snippet'],
     type: [String],
+    required: false,
   })
   @IsArray()
   @IsString({ each: true })
@@ -55,13 +47,13 @@ export class UpdateProductDTO {
   benefits: string[];
 
   @ApiProperty({
-    description: 'List of services offered with the product',
+    required: false,
     type: [Object],
     example: [
       {
-        service_type: 'Service Type 1',
-        service_details: 'Detailed description of the service',
-        service_details_list: ['sub description 1', 'sub description 2'],
+        service_type: 'Coding platform',
+        service_details: 'This provides developer to write code free of cost.',
+        service_details_list: ['Free to use', 'Provide free extension.'],
       },
     ],
   })
@@ -74,8 +66,9 @@ export class UpdateProductDTO {
   }[];
 
   @ApiProperty({
-    description: 'List of methodologies associated with the product',
-    type: [String],
+    example: ['Easy to use', 'User friendly.'],
+    type: 'string',
+    required: false,
   })
   @IsArray()
   @IsString({ each: true })
@@ -83,12 +76,11 @@ export class UpdateProductDTO {
   methodology: string[];
 
   @ApiProperty({
-    description: 'List of expiry areas and descriptions',
     type: [Object],
     required: false,
     example: [
-      { area: 'Area 1', description: 'Expiry description 1' },
-      { area: 'Area 2', description: 'Expiry description 2' },
+      { area: 'AI', description: 'This platform is in build AI.' },
+      { area: 'Code snippet', description: 'Provide many in build code.' },
     ],
   })
   @IsArray()

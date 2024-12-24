@@ -21,6 +21,14 @@ export class ProductServiceDetailsModel extends Model<ProductServiceDetailsModel
   @Column
   product_service_id: number;
 
+  @ForeignKey(() => ProductServiceModel)
+  @AllowNull(false)
+  @Column
+  product_id: number;
+
   @BelongsTo(() => ProductServiceModel)
   product_service: ProductServiceModel;
+
+  @BelongsTo(() => ProductServiceModel)
+  product: ProductServiceModel;
 }

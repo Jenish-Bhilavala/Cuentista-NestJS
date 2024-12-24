@@ -27,11 +27,6 @@ export class ProductModel extends Model<ProductModel> {
   @Column
   product_description: string;
 
-  @AllowNull(false)
-  @MaxLength(255)
-  @Column
-  contact: string;
-
   @HasMany(() => ProductBenefitModel)
   benefit: ProductBenefitModel[];
 

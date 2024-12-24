@@ -2,13 +2,14 @@ export class CreateAdminDto {}
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Match } from 'src/libs/utils/constants/match.decorator';
 
 export class LoginDto {
   @ApiProperty({
@@ -62,7 +63,7 @@ export class ForgotPasswordDto {
     format: 'number',
     required: true,
   })
-  @IsInt()
+  @IsNumber()
   @IsNotEmpty()
   otp: number;
 
@@ -87,6 +88,7 @@ export class ForgotPasswordDto {
     required: true,
   })
   @IsString()
+  @Match('newPassword', { message: 'Your confirm Password is not match.' })
   @IsNotEmpty()
   confirmPassword: string;
 }
@@ -133,6 +135,7 @@ export class ChangePasswordDto {
     required: true,
   })
   @IsString()
+  @Match('newPassword', { message: 'Your confirm Password is not match.' })
   @IsNotEmpty()
   confirmPassword: string;
 }
