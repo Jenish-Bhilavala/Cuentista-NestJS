@@ -33,7 +33,7 @@ export class ProductService {
     private readonly productExpertiseModel: typeof ProductExpertiseModel
   ) {}
 
-  async createProduct(createProductDTO: CreateProductDto) {
+  async createProduct(dto: CreateProductDto) {
     const {
       product_name,
       product_description,
@@ -43,76 +43,99 @@ export class ProductService {
       methodology,
       expertise,
       images,
-    } = createProductDTO;
+    } = dto;
+
+    const transaction = await this.productModel.sequelize.transaction();
     try {
-      const newProduct = await this.productModel.create({
-        product_name,
-        product_description,
-        contact,
-      });
+      const createProduct = await this.productModel.create(
+        {
+          product_name,
+          product_description,
+          contact,
+        },
+        { transaction }
+      );
+
+      const ProductsId = createProduct.id;
 
       if (images) {
         const imageData = {
-          product_id: newProduct.id,
+          product_id: ProductsId,
           image1: images.image1,
           image2: images.image2,
           image3: images.image3,
           image4: images.image4,
         };
-        await this.imageModel.create(imageData);
+        await this.imageModel.create(imageData, { transaction });
       }
 
-      if (benefits?.length) {
-        const benefitRecords = benefits.map((benefit) => ({
+      if (benefits) {
+        const createBenefits = benefits.map((benefit) => ({
           benefit,
-          product_id: newProduct.id,
+          product_id: ProductsId,
         }));
-        await this.productBenefitModel.bulkCreate(benefitRecords);
+        await this.productBenefitModel.bulkCreate(createBenefits, {
+          transaction,
+        });
       }
 
-      if (services?.length) {
+      if (services) {
         for (const service of services) {
-          const newService = await this.productServiceModel.create({
-            service_type: service.service_type,
-            service_detail: service.service_details,
-            product_id: newProduct.id,
-          });
+          const createServices = await this.productServiceModel.create(
+            {
+              service_type: service.service_type,
+              service_detail: service.service_details,
+              product_id: ProductsId,
+            },
+            { transaction }
+          );
 
-          if (service.service_details_list?.length) {
-            const serviceDetails = service.service_details_list.map(
+          if (service.service_details_list) {
+            const createServiceDetails = service.service_details_list.map(
               (detail) => ({
-                product_service_id: newService.id,
+                product_service_id: createServices.id,
                 service_details: detail,
               })
             );
-            await this.serviceDetailModel.bulkCreate(serviceDetails);
+            await this.serviceDetailModel.bulkCreate(createServiceDetails, {
+              transaction,
+            });
           }
         }
       }
 
-      if (methodology?.length) {
-        const methodologyRecords = methodology.map((step) => ({
-          product_id: newProduct.id,
+      if (methodology) {
+        const createMethodology = methodology.map((step) => ({
+          product_id: ProductsId,
           product_step: step,
         }));
-        await this.productMethodologyModel.bulkCreate(methodologyRecords);
+        await this.productMethodologyModel.bulkCreate(createMethodology, {
+          transaction,
+        });
       }
 
-      if (expertise?.length) {
-        const expertiseRecords = expertise.map((expertise) => ({
-          product_id: newProduct.id,
+      if (expertise) {
+        const createExpertise = expertise.map((expertise) => ({
+          product_id: ProductsId,
           product_area: expertise.area,
           product_description: expertise.description,
         }));
-        await this.productExpertiseModel.bulkCreate(expertiseRecords);
+        await this.productExpertiseModel.bulkCreate(createExpertise, {
+          transaction,
+        });
       }
+
+      await transaction.commit();
+
+      Logger.log(`Product ${Messages.ADD_SUCCESS}`);
       return HandleResponse(
         HttpStatus.CREATED,
         ResponseData.SUCCESS,
         `Product ${Messages.ADD_SUCCESS}`,
-        { id: newProduct.id }
+        { id: ProductsId }
       );
     } catch (error) {
+      await transaction.rollback();
       return HandleResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         ResponseData.ERROR,
@@ -168,6 +191,7 @@ export class ProductService {
       );
     }
 
+    Logger.log(`Product ${Messages.RETRIEVED_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
@@ -176,8 +200,8 @@ export class ProductService {
     );
   }
 
-  async listOfProduct(listOfProductDTO: ListOfProductDto) {
-    const { search, pageSize, page, sortValue, sortKey } = listOfProductDTO;
+  async listOfProduct(dto: ListOfProductDto) {
+    const { search, pageSize, page, sortValue, sortKey } = dto;
     const sortQuery = sorting(sortKey, sortValue);
 
     const whereCondition: any = {
@@ -199,15 +223,6 @@ export class ProductService {
       whereCondition,
       'products'
     );
-
-    if (paginationResult.products && paginationResult.products.length <= 0) {
-      Logger.error(`Products ${Messages.NOT_FOUND}`);
-      return HandleResponse(
-        HttpStatus.NOT_FOUND,
-        ResponseData.ERROR,
-        `Products ${Messages.NOT_FOUND}`
-      );
-    }
 
     Logger.log(`Products ${Messages.RETRIEVED_SUCCESS}`);
     return HandleResponse(
@@ -232,6 +247,7 @@ export class ProductService {
       );
     }
 
+    Logger.log(`Product ${Messages.RETRIEVED_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
@@ -240,7 +256,7 @@ export class ProductService {
     );
   }
 
-  async updateProduct(productId: number, updateProductDTO: UpdateProductDTO) {
+  async updateProduct(productId: number, dto: UpdateProductDTO) {
     const {
       product_name,
       product_description,
@@ -250,9 +266,10 @@ export class ProductService {
       methodology,
       expertise,
       images,
-    } = updateProductDTO;
+    } = dto;
 
     const findProduct = await this.productModel.findByPk(productId);
+    const productsId = findProduct.id;
 
     if (!findProduct) {
       Logger.error(`Product ${Messages.NOT_FOUND}`);
@@ -278,7 +295,7 @@ export class ProductService {
       };
 
       const existingImages = await this.imageModel.findOne({
-        where: { product_id: findProduct.id },
+        where: { product_id: productsId },
       });
 
       if (existingImages) {
@@ -286,79 +303,82 @@ export class ProductService {
       } else {
         await this.imageModel.create({
           ...imageData,
-          product_id: findProduct.id,
+          product_id: productsId,
         });
       }
     }
 
-    if (benefits?.length) {
+    if (benefits) {
       await this.productBenefitModel.destroy({
-        where: { product_id: findProduct.id },
+        where: { product_id: productsId },
       });
 
       const benefitRecords = benefits.map((benefit) => ({
         benefit,
-        product_id: findProduct.id,
+        product_id: productsId,
       }));
 
       await this.productBenefitModel.bulkCreate(benefitRecords);
     }
 
-    if (services?.length) {
+    if (services) {
       await this.productServiceModel.destroy({
-        where: { product_id: findProduct.id },
+        where: { product_id: productsId },
       });
 
       for (const service of services) {
-        const newService = await this.productServiceModel.create({
+        const updateService = await this.productServiceModel.create({
           service_type: service.service_type,
           service_detail: service.service_details,
-          product_id: findProduct.id,
+          product_id: productsId,
         });
 
         if (service.service_details_list?.length) {
-          const serviceDetails = service.service_details_list.map((detail) => ({
-            product_service_id: newService.id,
-            service_details: detail,
-          }));
+          const createServiceDetails = service.service_details_list.map(
+            (detail) => ({
+              product_service_id: updateService.id,
+              service_details: detail,
+            })
+          );
 
-          await this.serviceDetailModel.bulkCreate(serviceDetails);
+          await this.serviceDetailModel.bulkCreate(createServiceDetails);
         }
       }
     }
 
-    if (methodology?.length) {
+    if (methodology) {
       await this.productMethodologyModel.destroy({
-        where: { product_id: findProduct.id },
+        where: { product_id: productsId },
       });
 
-      const methodologyRecords = methodology.map((step) => ({
-        product_id: findProduct.id,
+      const updateMethodology = methodology.map((step) => ({
+        product_id: productsId,
         product_step: step,
       }));
 
-      await this.productMethodologyModel.bulkCreate(methodologyRecords);
+      await this.productMethodologyModel.bulkCreate(updateMethodology);
     }
 
-    if (expertise?.length) {
+    if (expertise) {
       await this.productExpertiseModel.destroy({
-        where: { product_id: findProduct.id },
+        where: { product_id: productsId },
       });
 
-      const expertiseRecords = expertise.map((expertise) => ({
-        product_id: findProduct.id,
+      const updateExpertise = expertise.map((expertise) => ({
+        product_id: productsId,
         product_area: expertise.area,
         product_description: expertise.description,
       }));
 
-      await this.productExpertiseModel.bulkCreate(expertiseRecords);
+      await this.productExpertiseModel.bulkCreate(updateExpertise);
     }
 
+    Logger.log(`Product ${Messages.UPDATE_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
       `Product ${Messages.UPDATE_SUCCESS}`,
-      { id: findProduct.id }
+      { id: productsId }
     );
   }
 

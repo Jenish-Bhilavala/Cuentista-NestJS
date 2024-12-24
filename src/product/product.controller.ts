@@ -21,8 +21,8 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Post('addProduct')
-  async createProduct(@Body() createProductDTO: CreateProductDto) {
-    return this.productService.createProduct(createProductDTO);
+  async createProduct(@Body() dto: CreateProductDto) {
+    return this.productService.createProduct(dto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -34,8 +34,8 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Post('viewListOfProduct')
-  async ListOfProduct(@Body() listOfProductDto: ListOfProductDto) {
-    return this.productService.listOfProduct(listOfProductDto);
+  async ListOfProduct(@Body() dto: ListOfProductDto) {
+    return this.productService.listOfProduct(dto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -49,9 +49,9 @@ export class ProductController {
   @ApiParam({ example: 1, name: 'productId', required: true })
   async updateProduct(
     @Param('productId') productId: number,
-    @Body() updateProductDTO: UpdateProductDTO
+    @Body() dto: UpdateProductDTO
   ) {
-    return this.productService.updateProduct(productId, updateProductDTO);
+    return this.productService.updateProduct(productId, dto);
   }
 
   @HttpCode(HttpStatus.OK)
