@@ -25,8 +25,8 @@ export class AdminService {
     private readonly jwtService: JwtService
   ) {}
 
-  async adminLogin(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+  async adminLogin(dto: LoginDto) {
+    const { email, password } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -63,8 +63,8 @@ export class AdminService {
     );
   }
 
-  async verifyEmail(verifyEmailDto: VerifyEmailDto) {
-    const { email } = verifyEmailDto;
+  async verifyEmail(dto: VerifyEmailDto) {
+    const { email } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -82,7 +82,6 @@ export class AdminService {
     await OTPModel.create({
       email: email,
       otp: otp,
-      createdAt: new Date(),
       expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
@@ -97,9 +96,8 @@ export class AdminService {
     );
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const { email, otp, newPassword, confirmPassword } = forgotPasswordDto;
-
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const { email, otp, newPassword } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -111,7 +109,7 @@ export class AdminService {
       );
     }
 
-    const findOtp = await this.otpModel.findOne({ where: { email, otp } });
+    const findOtp = await this.otpModel.findOne({ where: { otp } });
 
     if (!findOtp) {
       Logger.error(Messages.OTP_NOT_MATCH);
@@ -125,21 +123,12 @@ export class AdminService {
     const currentTime = new Date();
 
     if (findOtp.expiresAt < currentTime) {
-      Logger.error(Messages.OTP_EXPIRED);
       await this.otpModel.destroy({ where: { otp } });
+      Logger.error(Messages.OTP_EXPIRED);
       return HandleResponse(
         HttpStatus.BAD_REQUEST,
         ResponseData.ERROR,
         Messages.OTP_EXPIRED
-      );
-    }
-
-    if (newPassword !== confirmPassword) {
-      Logger.error(Messages.PASSWORD_MUST_BE_SAME);
-      return HandleResponse(
-        HttpStatus.BAD_REQUEST,
-        ResponseData.ERROR,
-        Messages.PASSWORD_MUST_BE_SAME
       );
     }
 
@@ -153,16 +142,14 @@ export class AdminService {
 
     Logger.log(`Password ${Messages.UPDATE_SUCCESS}`);
     return HandleResponse(
-      HttpStatus.OK,
+      HttpStatus.CREATED,
       ResponseData.SUCCESS,
       `Password ${Messages.UPDATE_SUCCESS}`
     );
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto) {
-    const { email, currentPassword, newPassword, confirmPassword } =
-      changePasswordDto;
-
+  async changePassword(dto: ChangePasswordDto) {
+    const { email, currentPassword, newPassword } = dto;
     const findAdmin = await this.adminModel.findOne({ where: { email } });
 
     if (!findAdmin) {
@@ -185,15 +172,6 @@ export class AdminService {
         HttpStatus.BAD_REQUEST,
         ResponseData.ERROR,
         Messages.CREDENTIAL_NOT_MATCH
-      );
-    }
-
-    if (newPassword !== confirmPassword) {
-      Logger.error(Messages.PASSWORD_MUST_BE_SAME);
-      return HandleResponse(
-        HttpStatus.BAD_REQUEST,
-        ResponseData.ERROR,
-        Messages.PASSWORD_MUST_BE_SAME
       );
     }
 
@@ -227,8 +205,7 @@ export class AdminService {
       const result: string[] = [];
 
       for (const file of files) {
-        const fileName = file.filename;
-        const fileUrl = `/uploads/${fileName}`;
+        const fileUrl = file.filename;
         result.push(fileUrl);
       }
 

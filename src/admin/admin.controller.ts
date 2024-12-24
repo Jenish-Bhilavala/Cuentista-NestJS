@@ -26,27 +26,27 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('/login')
-  async adminLogin(@Body() loginDto: LoginDto) {
-    return await this.adminService.adminLogin(loginDto);
+  @Post('login')
+  async adminLogin(@Body() dto: LoginDto) {
+    return await this.adminService.adminLogin(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('/verifyEmail')
-  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    return await this.adminService.verifyEmail(verifyEmailDto);
+  @Post('verifyEmail')
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    return await this.adminService.verifyEmail(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Put('/forgotPassword')
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return await this.adminService.forgotPassword(forgotPasswordDto);
+  @Put('forgotPassword')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return await this.adminService.forgotPassword(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Put('/changePassword')
-  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
-    return await this.adminService.changePassword(changePasswordDto);
+  @Put('changePassword')
+  async changePassword(@Body() dto: ChangePasswordDto) {
+    return await this.adminService.changePassword(dto);
   }
 
   @HttpCode(HttpStatus.OK)
