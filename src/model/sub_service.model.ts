@@ -13,6 +13,11 @@ import { MaxLength } from 'class-validator';
 
 @Table({ tableName: 'sub_service' })
 export class SubServiceModel extends Model<SubServiceModel> {
+  @ForeignKey(() => ServiceModel)
+  @AllowNull(false)
+  @Column
+  service_id: number;
+
   @AllowNull(true)
   @MaxLength(50)
   @Column
@@ -22,11 +27,6 @@ export class SubServiceModel extends Model<SubServiceModel> {
   @MaxLength(255)
   @Column
   sub_service_description: string;
-
-  @ForeignKey(() => ServiceModel)
-  @AllowNull(false)
-  @Column
-  service_id: number;
 
   @BelongsTo(() => ServiceModel)
   service: ServiceModel;

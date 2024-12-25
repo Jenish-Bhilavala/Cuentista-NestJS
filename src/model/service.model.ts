@@ -7,6 +7,7 @@ import {
   HasMany,
   Default,
   Sequelize,
+  HasOne,
 } from 'sequelize-typescript';
 import { ImageModel } from './images.model';
 import { SubServiceModel } from './sub_service.model';
@@ -24,8 +25,8 @@ export class ServiceModel extends Model<ServiceModel> {
   @Column
   service_description: string;
 
-  @HasMany(() => ImageModel)
-  imageDetails: ImageModel[];
+  @HasOne(() => ImageModel)
+  imageDetails: ImageModel;
 
   @HasMany(() => SubServiceModel)
   subServices: SubServiceModel[];

@@ -5,6 +5,7 @@ import {
   Column,
   Default,
   HasMany,
+  HasOne,
   Model,
   Sequelize,
   Table,
@@ -39,8 +40,8 @@ export class ProductModel extends Model<ProductModel> {
   @HasMany(() => ProductExpertiseModel)
   expertise: ProductExpertiseModel[];
 
-  @HasMany(() => ImageModel)
-  imagesDetails: ImageModel[];
+  @HasOne(() => ImageModel)
+  imagesDetails: ImageModel;
 
   @Default(Sequelize.literal('CURRENT_TIMESTAMP'))
   @Column({ type: 'TIMESTAMP' })
