@@ -135,6 +135,7 @@ export class ProductService {
       );
     } catch (error) {
       await transaction.rollback();
+      Logger.error(error.message || error);
       return HandleResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         ResponseData.ERROR,
@@ -265,166 +266,210 @@ export class ProductService {
       expertise,
       images,
     } = dto;
+    const transaction = await this.productModel.sequelize.transaction();
 
-    const findProduct = await this.productModel.findByPk(productId);
-    const productsId = findProduct.id;
+    try {
+      const findProduct = await this.productModel.findByPk(productId);
+      const productsId = findProduct.id;
 
-    if (!findProduct) {
-      Logger.error(`Product ${Messages.NOT_FOUND}`);
-      return HandleResponse(
-        HttpStatus.NOT_FOUND,
-        ResponseData.ERROR,
-        `Product ${Messages.NOT_FOUND}`
+      if (!findProduct) {
+        Logger.error(`Product ${Messages.NOT_FOUND}`);
+        return HandleResponse(
+          HttpStatus.NOT_FOUND,
+          ResponseData.ERROR,
+          `Product ${Messages.NOT_FOUND}`
+        );
+      }
+
+      await findProduct.update(
+        {
+          product_name,
+          product_description,
+        },
+        { transaction }
       );
-    }
 
-    await findProduct.update({
-      product_name,
-      product_description,
-    });
+      if (images) {
+        const imageData = {
+          image1: images.image1,
+          image2: images.image2,
+          image3: images.image3,
+          image4: images.image4,
+        };
 
-    if (images) {
-      const imageData = {
-        image1: images.image1,
-        image2: images.image2,
-        image3: images.image3,
-        image4: images.image4,
-      };
+        await this.imageModel.destroy({
+          where: { product_id: productsId },
+        });
 
-      const existingImages = await this.imageModel.findOne({
-        where: { product_id: productsId },
-      });
+        await this.imageModel.create(
+          {
+            ...imageData,
+            product_id: productsId,
+          },
+          { transaction }
+        );
+      }
 
-      if (existingImages) {
-        await existingImages.update(imageData);
-      } else {
-        await this.imageModel.create({
-          ...imageData,
+      if (benefits) {
+        await this.productBenefitModel.destroy({
+          where: { product_id: productsId },
+        });
+
+        const benefitRecords = benefits.map((benefit) => ({
+          benefit,
           product_id: productsId,
+        }));
+
+        await this.productBenefitModel.bulkCreate(benefitRecords, {
+          transaction,
         });
       }
+
+      if (services) {
+        await this.serviceDetailModel.destroy({
+          where: { product_id: productsId },
+        });
+
+        await this.productServiceModel.destroy({
+          where: { product_id: productsId },
+        });
+
+        for (const service of services) {
+          const updateService = await this.productServiceModel.create(
+            {
+              service_type: service.service_type,
+              service_detail: service.service_details,
+              product_id: productsId,
+            },
+            { transaction }
+          );
+
+          if (service.service_details_list) {
+            const createServiceDetails = service.service_details_list.map(
+              (detail) => ({
+                product_service_id: updateService.id,
+                product_id: productsId,
+                service_details: detail,
+              })
+            );
+
+            await this.serviceDetailModel.bulkCreate(createServiceDetails, {
+              transaction,
+            });
+          }
+        }
+      }
+
+      if (methodology) {
+        await this.productMethodologyModel.destroy({
+          where: { product_id: productsId },
+        });
+
+        const updateMethodology = methodology.map((step) => ({
+          product_id: productsId,
+          product_step: step,
+        }));
+
+        await this.productMethodologyModel.bulkCreate(updateMethodology, {
+          transaction,
+        });
+      }
+
+      if (expertise) {
+        await this.productExpertiseModel.destroy({
+          where: { product_id: productsId },
+        });
+
+        const updateExpertise = expertise.map((expertise) => ({
+          product_id: productsId,
+          product_area: expertise.area,
+          product_description: expertise.description,
+        }));
+
+        await this.productExpertiseModel.bulkCreate(updateExpertise, {
+          transaction,
+        });
+      }
+
+      await transaction.commit();
+
+      Logger.log(`Product ${Messages.UPDATE_SUCCESS}`);
+      return HandleResponse(
+        HttpStatus.OK,
+        ResponseData.SUCCESS,
+        `Product ${Messages.UPDATE_SUCCESS}`,
+        { id: productsId }
+      );
+    } catch (error) {
+      await transaction.rollback();
+      return HandleResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        ResponseData.ERROR,
+        error.message || error
+      );
     }
+  }
 
-    if (benefits) {
-      await this.productBenefitModel.destroy({
-        where: { product_id: productsId },
-      });
+  async deleteProduct(productId: number) {
+    const transaction = await this.productModel.sequelize.transaction();
 
-      const benefitRecords = benefits.map((benefit) => ({
-        benefit,
-        product_id: productsId,
-      }));
+    try {
+      const findProduct = await this.productModel.findByPk(productId);
 
-      await this.productBenefitModel.bulkCreate(benefitRecords);
-    }
+      if (!findProduct) {
+        Logger.error(`Product ${Messages.NOT_FOUND}`);
+        return HandleResponse(
+          HttpStatus.NOT_FOUND,
+          ResponseData.ERROR,
+          `Product ${Messages.NOT_FOUND}`
+        );
+      }
 
-    if (services) {
+      const productsId = findProduct.id;
+
       await this.serviceDetailModel.destroy({
         where: { product_id: productsId },
+        transaction,
       });
 
       await this.productServiceModel.destroy({
         where: { product_id: productsId },
+        transaction,
       });
 
-      for (const service of services) {
-        const updateService = await this.productServiceModel.create({
-          service_type: service.service_type,
-          service_detail: service.service_details,
-          product_id: productsId,
-        });
-
-        if (service.service_details_list) {
-          const createServiceDetails = service.service_details_list.map(
-            (detail) => ({
-              product_service_id: updateService.id,
-              product_id: productsId,
-              service_details: detail,
-            })
-          );
-
-          await this.serviceDetailModel.bulkCreate(createServiceDetails);
-        }
-      }
-    }
-
-    if (methodology) {
       await this.productMethodologyModel.destroy({
         where: { product_id: productsId },
+        transaction,
       });
 
-      const updateMethodology = methodology.map((step) => ({
-        product_id: productsId,
-        product_step: step,
-      }));
-
-      await this.productMethodologyModel.bulkCreate(updateMethodology);
-    }
-
-    if (expertise) {
       await this.productExpertiseModel.destroy({
         where: { product_id: productsId },
+        transaction,
       });
 
-      const updateExpertise = expertise.map((expertise) => ({
-        product_id: productsId,
-        product_area: expertise.area,
-        product_description: expertise.description,
-      }));
+      await this.productBenefitModel.destroy({
+        where: { product_id: productsId },
+        transaction,
+      });
 
-      await this.productExpertiseModel.bulkCreate(updateExpertise);
-    }
+      await findProduct.destroy({ transaction });
 
-    Logger.log(`Product ${Messages.UPDATE_SUCCESS}`);
-    return HandleResponse(
-      HttpStatus.OK,
-      ResponseData.SUCCESS,
-      `Product ${Messages.UPDATE_SUCCESS}`,
-      { id: productsId }
-    );
-  }
+      await transaction.commit();
 
-  async deleteProduct(productId: number) {
-    const findProduct = await this.productModel.findByPk(productId);
-
-    if (!findProduct) {
-      Logger.error(`Product ${Messages.NOT_FOUND}`);
+      Logger.log(`Product ${Messages.DELETED_SUCCESS}`);
       return HandleResponse(
-        HttpStatus.NOT_FOUND,
+        HttpStatus.OK,
+        ResponseData.SUCCESS,
+        `Product ${Messages.DELETED_SUCCESS}`
+      );
+    } catch (error) {
+      await transaction.rollback();
+      Logger.error(error.message || error);
+      return HandleResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
         ResponseData.ERROR,
-        `Product ${Messages.NOT_FOUND}`
+        error.message || error
       );
     }
-
-    const productsId = findProduct.id;
-
-    await this.serviceDetailModel.destroy({
-      where: { product_id: productsId },
-    });
-
-    await this.productServiceModel.destroy({
-      where: { product_id: productsId },
-    });
-
-    await this.productMethodologyModel.destroy({
-      where: { product_id: productsId },
-    });
-
-    await this.productExpertiseModel.destroy({
-      where: { product_id: productsId },
-    });
-
-    await this.productBenefitModel.destroy({
-      where: { product_id: productsId },
-    });
-
-    await findProduct.destroy();
-
-    Logger.log(`Product ${Messages.DELETED_SUCCESS}`);
-    return HandleResponse(
-      HttpStatus.OK,
-      ResponseData.SUCCESS,
-      `Product ${Messages.DELETED_SUCCESS}`
-    );
   }
 }

@@ -36,7 +36,7 @@ export class ServiceDetailsModel extends Model<ServiceDetailsModel> {
 
   @AllowNull(true)
   @Column
-  description: string | null;
+  description: string;
 
   @BelongsTo(() => ServiceModel)
   service: ServiceModel;

@@ -11,33 +11,32 @@ import { ServiceDetailType } from 'src/libs/utils/constants/enum';
 
 export class CreateServiceDto {
   @ApiProperty({
-    description: 'The name of the service',
-    maxLength: 50,
+    example: 'Inbuilt extension',
+    type: 'string',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(50)
   service_name: string;
 
   @ApiProperty({
-    description: 'The description of the service',
-    maxLength: 255,
+    example: 'Microsoft Code provide many extension which help while code.',
+    type: 'string',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(255)
   service_description: string;
 
   @ApiProperty({
-    description: 'Image details for the product',
-    type: Object,
-    required: true,
     example: {
       image1: 'image_url_1',
       image2: 'image_url_2',
       image3: 'image_url_3',
       image4: 'image_url_4',
     },
+    type: Object,
+    required: true,
   })
   @IsNotEmpty()
   images: {
@@ -48,14 +47,20 @@ export class CreateServiceDto {
   };
 
   @ApiProperty({
-    description: 'Sub-services for the service',
     type: [Object],
     example: [
       {
-        sub_service_title: 'SubService 1',
-        sub_service_description: 'Description of SubService 1',
+        sub_service_title: 'Microsoft extension',
+        sub_service_description:
+          'Microsoft code provide extension built by their own',
+      },
+      {
+        sub_service_title: 'Third party extension',
+        sub_service_description:
+          'Software user also can built their extension and publish them.',
       },
     ],
+    required: false,
   })
   @IsArray()
   @IsOptional()
@@ -65,7 +70,6 @@ export class CreateServiceDto {
   }[];
 
   @ApiProperty({
-    description: 'Service details related to the service',
     type: [Object],
     example: [
       {
@@ -75,6 +79,7 @@ export class CreateServiceDto {
       },
       { type: 'ATC', title: 'ATC Detail' },
     ],
+    required: false,
   })
   @IsArray()
   @IsOptional()
@@ -87,25 +92,24 @@ export class CreateServiceDto {
 
 export class UpdateServiceDto {
   @ApiProperty({
-    description: 'The name of the service',
-    maxLength: 50,
+    example: 'Microsoft Code',
+    type: 'string',
+    required: false,
   })
   @IsOptional()
   @IsString()
-  @MaxLength(50)
   service_name: string;
 
   @ApiProperty({
-    description: 'The description of the service',
-    maxLength: 255,
+    example: 'Microsoft Code provide many extension which help while code.',
+    type: 'string',
+    required: false,
   })
   @IsString()
   @IsOptional()
-  @MaxLength(255)
   service_description: string;
 
   @ApiProperty({
-    description: 'Image details for the product',
     type: Object,
     required: false,
     example: {
@@ -124,14 +128,20 @@ export class UpdateServiceDto {
   };
 
   @ApiProperty({
-    description: 'Sub-services for the service',
-    type: [Object],
     example: [
       {
-        sub_service_title: 'SubService 1',
-        sub_service_description: 'Description of SubService 1',
+        sub_service_title: 'Microsoft extension',
+        sub_service_description:
+          'Microsoft code provide extension built by their own',
+      },
+      {
+        sub_service_title: 'Third party extension',
+        sub_service_description:
+          'Software user also can built their extension and publish them.',
       },
     ],
+    type: [Object],
+    required: false,
   })
   @IsArray()
   @IsOptional()
@@ -141,8 +151,6 @@ export class UpdateServiceDto {
   }[];
 
   @ApiProperty({
-    description: 'Service details related to the service',
-    type: [Object],
     example: [
       {
         type: 'consulting',
@@ -151,6 +159,8 @@ export class UpdateServiceDto {
       },
       { type: 'ATC', title: 'ATC Detail' },
     ],
+    type: [Object],
+    required: false,
   })
   @IsArray()
   @IsOptional()
@@ -165,7 +175,6 @@ export class ListOfServiceDto {
   @ApiProperty({
     example: 'Web Development',
     type: 'string',
-    format: 'string',
     required: false,
   })
   @IsOptional()
@@ -183,7 +192,6 @@ export class ListOfServiceDto {
   @ApiProperty({
     example: 1,
     type: 'number',
-    format: 'number',
     required: false,
   })
   @IsOptional()

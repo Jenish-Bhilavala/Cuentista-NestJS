@@ -37,61 +37,74 @@ export class ServiceService {
       subServices,
       serviceDetails,
     } = dto;
+    const transaction = await this.serviceModel.sequelize.transaction();
 
     try {
-      const newService = await this.serviceModel.create({
-        service_name,
-        service_description,
-      });
+      const createService = await this.serviceModel.create(
+        {
+          service_name,
+          service_description,
+        },
+        { transaction }
+      );
+
+      const servicesId = createService.id;
 
       if (images) {
         const imageData = {
-          service_id: newService.id,
+          service_id: servicesId,
           image1: images.image1,
           image2: images.image2,
           image3: images.image3,
           image4: images.image4,
         };
-        await this.imageModel.create(imageData);
+        await this.imageModel.create(imageData, { transaction });
       }
 
-      if (subServices?.length) {
-        const subServiceRecords = subServices.map((subService) => ({
-          service_id: newService.id,
+      if (subServices) {
+        const createSubService = subServices.map((subService) => ({
+          service_id: servicesId,
           sub_service_title: subService.sub_service_title,
           sub_service_description: subService.sub_service_description,
         }));
-        await this.subServiceModel.bulkCreate(subServiceRecords);
+        await this.subServiceModel.bulkCreate(createSubService, {
+          transaction,
+        });
       }
 
-      if (serviceDetails?.length) {
-        const serviceDetailRecords = serviceDetails.map((detail) => {
+      if (serviceDetails) {
+        const createServiceDetail = serviceDetails.map((detail) => {
           if (detail.type === ServiceDetailType.CONSULTING) {
             return {
-              service_id: newService.id,
+              service_id: servicesId,
               type: detail.type,
               title: detail.title,
               description: detail.description,
             };
           }
           return {
-            service_id: newService.id,
+            service_id: servicesId,
             type: detail.type,
             title: detail.title,
           };
         });
 
-        await this.serviceDetailsModel.bulkCreate(serviceDetailRecords);
+        await this.serviceDetailsModel.bulkCreate(createServiceDetail, {
+          transaction,
+        });
       }
+
+      await transaction.commit();
 
       Logger.log(`Service ${Messages.ADD_SUCCESS}`);
       return HandleResponse(
         HttpStatus.CREATED,
         ResponseData.SUCCESS,
         `Service ${Messages.ADD_SUCCESS}`,
-        { id: newService.id }
+        { id: servicesId }
       );
     } catch (error) {
+      await transaction.rollback();
       Logger.error(error.message || error);
       return HandleResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -126,6 +139,7 @@ export class ServiceService {
       );
     }
 
+    Logger.log(`Service ${Messages.ADD_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
@@ -191,25 +205,49 @@ export class ServiceService {
   }
 
   async deleteService(service_id: number) {
-    const findService = await this.serviceModel.findByPk(service_id);
+    const transaction = await this.serviceModel.sequelize.transaction();
 
-    if (!findService) {
-      Logger.error(`Service ${Messages.NOT_FOUND}`);
+    try {
+      const findService = await this.serviceModel.findByPk(service_id);
+
+      if (!findService) {
+        Logger.error(`Service ${Messages.NOT_FOUND}`);
+        return HandleResponse(
+          HttpStatus.NOT_FOUND,
+          ResponseData.ERROR,
+          `Service${Messages.NOT_FOUND}`
+        );
+      }
+
+      const servicesId = findService.id;
+
+      await this.subServiceModel.destroy({
+        where: { service_id: servicesId },
+        transaction,
+      });
+
+      await this.serviceDetailsModel.destroy({
+        where: { service_id: servicesId },
+        transaction,
+      });
+
+      await findService.destroy({ transaction });
+
+      Logger.log(`Service ${Messages.DELETED_SUCCESS}`);
       return HandleResponse(
-        HttpStatus.NOT_FOUND,
+        HttpStatus.OK,
+        ResponseData.SUCCESS,
+        `Service ${Messages.DELETED_SUCCESS}`
+      );
+    } catch (error) {
+      await transaction.rollback();
+      Logger.error(error.message || error);
+      return HandleResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
         ResponseData.ERROR,
-        `Service${Messages.NOT_FOUND}`
+        error.message || error
       );
     }
-
-    await findService.destroy();
-
-    Logger.log(`Service ${Messages.DELETED_SUCCESS}`);
-    return HandleResponse(
-      HttpStatus.OK,
-      ResponseData.SUCCESS,
-      `Service ${Messages.DELETED_SUCCESS}`
-    );
   }
 
   async updateService(serviceId: number, dto: UpdateServiceDto) {
@@ -220,87 +258,104 @@ export class ServiceService {
       subServices,
       serviceDetails,
     } = dto;
+    const transaction = await this.serviceModel.sequelize.transaction();
 
-    const findService = await this.serviceModel.findByPk(serviceId);
+    try {
+      const findService = await this.serviceModel.findByPk(serviceId);
+      const servicesId = findService.id;
 
-    if (!findService) {
-      Logger.error(`Service ${Messages.NOT_FOUND}`);
-      return HandleResponse(
-        HttpStatus.NOT_FOUND,
-        ResponseData.ERROR,
-        `Service ${Messages.NOT_FOUND}`
-      );
-    }
-
-    await findService.update({
-      service_name,
-      service_description,
-    });
-
-    if (images) {
-      const imageData = {
-        image1: images.image1,
-        image2: images.image2,
-        image3: images.image3,
-        image4: images.image4,
-      };
-
-      const existingImages = await this.imageModel.findOne({
-        where: { service_id: findService.id },
-      });
-
-      if (existingImages) {
-        await existingImages.update(imageData);
+      if (!findService) {
+        Logger.error(`Service ${Messages.NOT_FOUND}`);
+        return HandleResponse(
+          HttpStatus.NOT_FOUND,
+          ResponseData.ERROR,
+          `Service ${Messages.NOT_FOUND}`
+        );
       }
 
-      await this.imageModel.create({
-        ...imageData,
-        service_id: findService.id,
-      });
-    }
+      await findService.update(
+        {
+          service_name,
+          service_description,
+        },
+        { transaction }
+      );
 
-    if (subServices?.length) {
-      await this.subServiceModel.destroy({
-        where: { service_id: findService.id },
-      });
+      if (images) {
+        const imageData = {
+          image1: images.image1,
+          image2: images.image2,
+          image3: images.image3,
+          image4: images.image4,
+        };
 
-      const updateSubService = subServices.map((subService) => ({
-        sub_service_title: subService.sub_service_title,
-        sub_service_description: subService.sub_service_description,
-      }));
+        await this.imageModel.destroy({
+          where: { service_id: servicesId },
+        });
 
-      await this.subServiceModel.bulkCreate(updateSubService);
-    }
+        await this.imageModel.create(
+          { ...imageData, service_id: servicesId },
+          { transaction }
+        );
+      }
 
-    if (serviceDetails?.length) {
-      await this.serviceDetailsModel.destroy({
-        where: { service_id: findService.id },
-      });
+      if (subServices) {
+        await this.subServiceModel.destroy({
+          where: { service_id: servicesId },
+        });
 
-      const updateServiceDetails = serviceDetails.map((detail) => {
-        if (detail.type === ServiceDetailType.CONSULTING) {
+        const updateSubService = subServices.map((subService) => ({
+          sub_service_title: subService.sub_service_title,
+          sub_service_description: subService.sub_service_description,
+        }));
+
+        await this.subServiceModel.bulkCreate(updateSubService, {
+          transaction,
+        });
+      }
+
+      if (serviceDetails) {
+        await this.serviceDetailsModel.destroy({
+          where: { service_id: servicesId },
+        });
+
+        const updateServiceDetails = serviceDetails.map((detail) => {
+          if (detail.type === ServiceDetailType.CONSULTING) {
+            return {
+              service_id: servicesId,
+              type: detail.type,
+              title: detail.title,
+              description: detail.description,
+            };
+          }
           return {
-            service_id: findService.id,
+            service_id: servicesId,
             type: detail.type,
             title: detail.title,
-            description: detail.description,
           };
-        }
-        return {
-          service_id: findService.id,
-          type: detail.type,
-          title: detail.title,
-        };
-      });
-      await this.serviceDetailsModel.bulkCreate(updateServiceDetails);
-    }
+        });
+        await this.serviceDetailsModel.bulkCreate(updateServiceDetails, {
+          transaction,
+        });
+      }
 
-    Logger.log(`Service ${Messages.UPDATE_SUCCESS}`);
-    return HandleResponse(
-      HttpStatus.ACCEPTED,
-      ResponseData.SUCCESS,
-      `Service ${Messages.UPDATE_SUCCESS}`,
-      { id: findService.id }
-    );
+      await transaction.commit();
+
+      Logger.log(`Service ${Messages.UPDATE_SUCCESS}`);
+      return HandleResponse(
+        HttpStatus.ACCEPTED,
+        ResponseData.SUCCESS,
+        `Service ${Messages.UPDATE_SUCCESS}`,
+        { id: servicesId }
+      );
+    } catch (error) {
+      await transaction.rollback();
+      Logger.error(error.message || error);
+      return HandleResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        ResponseData.ERROR,
+        error.message || error
+      );
+    }
   }
 }
