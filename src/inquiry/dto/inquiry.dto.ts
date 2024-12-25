@@ -84,6 +84,7 @@ export class ListOfInquiryDto {
     format: 'number',
     required: false,
   })
+  @IsNumber()
   @IsOptional()
   page: number;
 

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class FileUploadDto {
   @ApiProperty({
@@ -6,5 +7,6 @@ export class FileUploadDto {
     items: { type: 'string', format: 'binary' },
     required: true,
   })
+  @IsString()
   files: any[];
 }

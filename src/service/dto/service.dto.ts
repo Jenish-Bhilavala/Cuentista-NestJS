@@ -38,6 +38,7 @@ export class CreateServiceDto {
     type: Object,
     required: true,
   })
+  @IsString()
   @IsNotEmpty()
   images: {
     image1: string;
@@ -96,8 +97,8 @@ export class UpdateServiceDto {
     type: 'string',
     required: false,
   })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   service_name: string;
 
   @ApiProperty({
@@ -119,6 +120,7 @@ export class UpdateServiceDto {
       image4: 'image_url_4',
     },
   })
+  @IsString()
   @IsOptional()
   images: {
     image1: string;
@@ -179,6 +181,7 @@ export class ListOfServiceDto {
     type: 'string',
     required: false,
   })
+  @IsString()
   @IsOptional()
   search: string;
 
@@ -196,6 +199,7 @@ export class ListOfServiceDto {
     type: 'number',
     required: false,
   })
+  @IsNumber()
   @IsOptional()
   page: number;
 

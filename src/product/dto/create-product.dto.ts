@@ -13,6 +13,7 @@ export class CreateProductDto {
     type: 'string',
     required: true,
   })
+  @IsString()
   @IsNotEmpty()
   product_name: string;
 
@@ -22,6 +23,7 @@ export class CreateProductDto {
     type: 'string',
     required: true,
   })
+  @IsString()
   @IsNotEmpty()
   product_description: string;
 
@@ -35,6 +37,7 @@ export class CreateProductDto {
     type: Object,
     required: true,
   })
+  @IsString()
   @IsNotEmpty()
   images: {
     image1: string;
@@ -105,6 +108,7 @@ export class ListOfProductDto {
     format: 'string',
     required: false,
   })
+  @IsString()
   @IsOptional()
   search: string;
 
@@ -123,6 +127,7 @@ export class ListOfProductDto {
     format: 'number',
     required: false,
   })
+  @IsNumber()
   @IsOptional()
   page: number;
 
