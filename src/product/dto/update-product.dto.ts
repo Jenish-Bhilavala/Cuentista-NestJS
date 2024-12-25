@@ -7,6 +7,7 @@ export class UpdateProductDTO {
     type: 'string',
     required: false,
   })
+  @IsString()
   @IsOptional()
   product_name: string;
 
@@ -15,6 +16,7 @@ export class UpdateProductDTO {
     type: 'string',
     required: true,
   })
+  @IsString()
   @IsOptional()
   product_description: string;
 
@@ -28,6 +30,7 @@ export class UpdateProductDTO {
     type: Object,
     required: false,
   })
+  @IsString()
   @IsOptional()
   images: {
     image1: string;

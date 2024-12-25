@@ -74,8 +74,7 @@ export class ForgotPasswordDto {
     required: true,
   })
   @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(16)
+  @IsString()
   @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/, {
     message: 'Your password too weak',
   })
@@ -110,6 +109,7 @@ export class ChangePasswordDto {
     format: 'string',
     required: true,
   })
+  @IsString()
   @IsNotEmpty()
   currentPassword: string;
 
@@ -119,9 +119,8 @@ export class ChangePasswordDto {
     format: 'string',
     required: true,
   })
+  @IsString()
   @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(16)
   @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{8,}$/, {
     message:
       'Password must contain one capital latter and at least 8 character long',
