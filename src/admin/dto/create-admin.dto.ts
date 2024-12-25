@@ -6,8 +6,6 @@ import {
   IsNumber,
   IsString,
   Matches,
-  MaxLength,
-  MinLength,
 } from 'class-validator';
 import { Match } from 'src/libs/utils/constants/match.decorator';
 
@@ -29,7 +27,6 @@ export class LoginDto {
     required: true,
   })
   @IsString()
-  @MinLength(6)
   @IsNotEmpty()
   password: string;
 }
