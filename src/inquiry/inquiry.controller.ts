@@ -4,32 +4,34 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Get,
   Put,
   Param,
 } from '@nestjs/common';
-import { InquiryDto } from './dto/inquiry.dto';
+import { AddInquiryDto, ListOfInquiryDto } from './dto/inquiry.dto';
 import { InquiryService } from './inquiry.service';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Inquiries')
 @Controller('inquiry')
 export class InquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('/addInquiry')
-  async createInquiry(@Body() inquiryDto: InquiryDto) {
-    return this.inquiryService.createInquiry(inquiryDto);
+  @Post('addInquiry')
+  async createInquiry(@Body() dto: AddInquiryDto) {
+    return this.inquiryService.createInquiry(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('/listOfInquiry')
-  async listOfInquiry() {
-    return this.inquiryService.listOfInquiry();
+  @Post('listOfInquiry')
+  async listOfInquiry(@Body() dto: ListOfInquiryDto) {
+    return this.inquiryService.listOfInquiry(dto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Put('/updateInquiry/:id')
-  async updateInquiry(@Param('id') inquiryId: number) {
+  @Put('updateInquiry/:inquiryId')
+  @ApiParam({ example: 1, name: 'inquiryId', required: true })
+  async updateInquiry(@Param('inquiryId') inquiryId: number) {
     return this.inquiryService.updateInquiry(inquiryId);
   }
 }

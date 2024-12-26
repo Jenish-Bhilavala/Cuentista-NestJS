@@ -1,21 +1,58 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { InquiryModule } from './inquiry/inquiry.module';
+import { AdminModule } from './admin/admin.module';
+import { ProductModule } from './product/product.module';
 import * as dotenv from 'dotenv';
+import { InquiryModel } from './model/inquiry.model';
+import { AdminModel } from './model/admin.model';
+import { OTPModel } from './model/otp.model';
+import { ImageModel } from './model/images.model';
+import { ProductModel } from './model/product.model';
+import { ProductServiceModel } from './model/product_service.model';
+import { ProductServiceDetailsModel } from './model/product_service_details.model';
+import { ProductBenefitModel } from './model/product_benefit.model';
+import { ProductExpertiseModel } from './model/product_expertise.model';
+import { ProductMethodologyModel } from './model/product_methodology.model';
+import { ServiceModule } from './service/service.module';
+import { ServiceModel } from './model/service.model';
+import { SubServiceModel } from './model/sub_service.model';
+import { ServiceDetailsModel } from './model/service_details.model';
 dotenv.config();
 
 const config: any = {
   dialect: 'mysql',
   autoLoadModels: true,
-  models: [],
+  models: [
+    InquiryModel,
+    AdminModel,
+    OTPModel,
+    ImageModel,
+    ProductModel,
+    ProductServiceModel,
+    ProductServiceDetailsModel,
+    ProductBenefitModel,
+    ProductExpertiseModel,
+    ProductMethodologyModel,
+    ServiceModel,
+    SubServiceModel,
+    ServiceDetailsModel,
+  ],
   define: {
     timestamps: false,
   },
 };
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public', 'uploads'),
+      serveRoot: '/uploads',
+    }),
+
     SequelizeModule.forRoot({
       ...config,
       host: process.env.DB_HOST,
@@ -26,6 +63,9 @@ const config: any = {
       synchronize: true,
     }),
     InquiryModule,
+    AdminModule,
+    ProductModule,
+    ServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

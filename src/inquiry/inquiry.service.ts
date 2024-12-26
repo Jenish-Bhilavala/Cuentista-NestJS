@@ -1,12 +1,14 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { InquiryModel } from '../model/inquiry.model';
-import { InquiryDto } from './dto/inquiry.dto';
+import { AddInquiryDto, ListOfInquiryDto } from './dto/inquiry.dto';
 import { HandleResponse } from '../libs/services/handleResponse';
 import { ResponseData } from 'src/libs/utils/constants/response';
 import { Messages } from 'src/libs/utils/constants/message';
 import { emailSend } from 'src/libs/helpers/mail';
 import { Status } from 'src/libs/utils/constants/enum';
+import { pagination, sorting } from '../libs/utils/constants/commonFunctions';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class InquiryService {
@@ -15,10 +17,9 @@ export class InquiryService {
     private readonly inquiryModel: typeof InquiryModel
   ) {}
 
-  async createInquiry(inquiryDto: InquiryDto): Promise<any> {
-    const inquiry = await this.inquiryModel.create(inquiryDto);
-
-    const { email, first_name, last_name, phone_number, message } = inquiryDto;
+  async createInquiry(dto: AddInquiryDto) {
+    const { email, first_name, last_name, phone_number, message } = dto;
+    const inquiry = await this.inquiryModel.create(dto);
 
     await emailSend({
       email,
@@ -37,30 +38,56 @@ export class InquiryService {
     );
   }
 
-  async listOfInquiry(): Promise<any> {
-    const inquiries = await this.inquiryModel.findAll();
+  async listOfInquiry(dto: ListOfInquiryDto) {
+    const { search, pageSize, page, sortValue, sortKey } = dto;
+    const sortQuery = sorting(sortKey, sortValue);
 
-    if (inquiries.length === 0) {
-      return HandleResponse(
-        HttpStatus.NOT_FOUND,
-        ResponseData.ERROR,
-        `Inquiries ${Messages.NOT_FOUND}`
-      );
+    const whereCondition: any = {
+      attributes: [
+        'id',
+        'first_name',
+        'last_name',
+        'email',
+        'phone_number',
+        'message',
+        'status',
+      ],
+      order: sortQuery,
+      where: {},
+    };
+
+    if (search) {
+      whereCondition.where[Op.or] = [
+        { first_name: { [Op.like]: `%${search}%` } },
+        { last_name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { phone_number: { [Op.like]: `%${search}%` } },
+        { status: { [Op.like]: `%${search}%` } },
+      ];
     }
+
+    const paginationResult = await pagination(
+      this.inquiryModel,
+      page,
+      pageSize,
+      whereCondition,
+      'inquiries'
+    );
 
     Logger.log(`Inquiries ${Messages.RETRIEVED_SUCCESS}`);
     return HandleResponse(
       HttpStatus.OK,
       ResponseData.SUCCESS,
       undefined,
-      inquiries
+      paginationResult
     );
   }
 
-  async updateInquiry(inquiryId: number): Promise<any> {
+  async updateInquiry(inquiryId: number) {
     const inquiry = await this.inquiryModel.findByPk(inquiryId);
 
     if (!inquiry) {
+      Logger.log(`Inquiry ${Messages.NOT_FOUND}`);
       return HandleResponse(
         HttpStatus.NOT_FOUND,
         ResponseData.ERROR,
@@ -69,21 +96,24 @@ export class InquiryService {
     }
 
     if (inquiry.status === Status.RESOLVE) {
+      Logger.log(Messages.INQUIRY_ALREADY_RESOLVE);
       return HandleResponse(
         HttpStatus.BAD_REQUEST,
         ResponseData.ERROR,
-        `The inquiry has already been resolved.`
+        Messages.INQUIRY_ALREADY_RESOLVE
       );
     }
 
-    inquiry.status = Status.RESOLVE;
-    await inquiry.save();
+    await this.inquiryModel.update(
+      { status: Status.RESOLVE },
+      { where: { id: inquiry } }
+    );
 
+    Logger.log(`Inquiry ${Messages.UPDATE_SUCCESS}`);
     return HandleResponse(
-      HttpStatus.OK,
+      HttpStatus.ACCEPTED,
       ResponseData.SUCCESS,
-      `Inquiry status updated successfully`,
-      { id: inquiry.id, status: inquiry.status }
+      `Inquiry ${Messages.UPDATE_SUCCESS}`
     );
   }
 }
